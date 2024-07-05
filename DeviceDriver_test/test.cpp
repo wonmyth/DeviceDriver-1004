@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "../DeviceDriver/DeviceDriver.cpp"
+#include <stdexcept>
 
 using namespace testing;
 using namespace std;
@@ -21,6 +22,26 @@ TEST(DeviceDriverTest, FlashMockRead) {
 	DeviceDriver driver(&mock);
 	EXPECT_THAT(driver.read(addr), Eq(1)); // state Verification
 }
+
+TEST(DeviceDriverTest, FlashMockReadException) {
+	FrashMock mock;
+	long addr = 0x1234;
+
+	EXPECT_CALL(mock, read(addr))
+		.Times(5) // behavior Verification
+		.WillOnce(Return(1))
+		.WillOnce(Return(1))
+		.WillOnce(Return(1))
+		.WillOnce(Return(1))
+		.WillOnce(Return(2)); //stub Verification
+
+	DeviceDriver driver(&mock);
+
+	EXPECT_THROW({
+		driver.read(addr);
+		}, std::exception);
+}
+
 TEST(DeviceDriverTest, FlashMockWrite) {
 	FrashMock mock;
 	long addr = 0x1234;
@@ -33,4 +54,20 @@ TEST(DeviceDriverTest, FlashMockWrite) {
 
 	DeviceDriver driver(&mock);
 	driver.write(addr, (int)data);
+}
+
+TEST(DeviceDriverTest, FlashMockWriteException) {
+	FrashMock mock;
+	long addr = 0x1234;
+	unsigned char data = 0xAA;
+
+	EXPECT_CALL(mock, read(addr))
+		.Times(5) // behavior Verification
+		.WillRepeatedly(Return(0xFA)); //stub Verification
+
+	DeviceDriver driver(&mock);
+
+	EXPECT_THROW({
+		driver.write(addr, (int)data);
+		}, std::exception);
 }

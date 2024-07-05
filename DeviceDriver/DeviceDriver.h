@@ -5,13 +5,16 @@ class DeviceDriver
 {
 public:
     DeviceDriver(FlashMemoryDevice* hardware);
-    int read(long address);
+    int read(long address);   
     void write(long address, int data);
-
+   
 protected:
     FlashMemoryDevice* m_hardware;
 
 private:
+    int checkReadTest(long address);
+    void checkWriteTest(long address);
+
     const int READ_TRY_COUNT = 5;
     const int INIT_MEMORY_VALUE = 0xff;
 };
